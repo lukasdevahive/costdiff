@@ -1,0 +1,16 @@
+{
+  "name": "costdiff",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Compare supplier price lists (Excel/CSV) in the browser: price changes, hidden pack-size increases, cheapest supplier.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs 8765",
+    "samples": "node scripts/make_samples.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser/e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.49.1"
+  }
+}

@@ -1,0 +1,106 @@
+{
+ "date": "2026-11-22T20:32:21.732Z",
+ "browser": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+ "results": [
+  {
+   "name": "landing: value proposition visible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "landing -> app link works",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "samples loaded with detected header rows",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "sample diff: 6 up, 1 hidden, 1 down, 1 new, 2 removed, 3 same",
+   "ok": true,
+   "detail": "6,1,1,1,2,3"
+  },
+  {
+   "name": "hidden increase listed first (pasta, +20 %/kg)",
+   "ok": true,
+   "detail": "Hausse cachéePAT-500Pâtes penne9,009,00+20 %6 kg → 5 kg"
+  },
+  {
+   "name": "unreadable price reported, not invented",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "filter 'Retirés' shows 2 rows",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "CSV export: header + 13 products (11 in February + 2 removed)",
+   "ok": true,
+   "detail": "14 lines"
+  },
+  {
+   "name": "CSV export marks the hidden increase",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "5,000 lines: 742 up incl. 42 hidden, 100 removed",
+   "ok": true,
+   "detail": "742,42,0,0,100,4158"
+  },
+  {
+   "name": "5,000 lines compared in under 3 s (click to result)",
+   "ok": true,
+   "detail": "98 ms"
+  },
+  {
+   "name": "long tables are paged (300 rows first)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "PDF refused with a clear message",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no common product: explained, no fake result",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "missing price column: explicit message",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "cheapest flour per kg is supplier B (7,40 € / 10 kg)",
+   "ok": true,
+   "detail": "7,4010 kg · 0,74 /kg"
+  },
+  {
+   "name": "no 'null', 'undefined' or 'NaN' rendered in the page",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "mobile 390 px: no horizontal page scroll (landing, app)",
+   "ok": true,
+   "detail": "0px / 0px"
+  },
+  {
+   "name": "network: only requests to the local server (files never uploaded)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no JavaScript error or console error",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}
