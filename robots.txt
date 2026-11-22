@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lukasdevahive.github.io/costdiff/sitemap.xml
