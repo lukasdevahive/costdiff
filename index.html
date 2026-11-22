@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>CostDiff — voir en 1 minute ce qui a augmenté dans le nouveau tarif fournisseur</title>
+<meta name="description" content="Comparez l'ancienne et la nouvelle liste de prix d'un fournisseur (Excel ou CSV) : hausses, baisses, articles retirés et hausses cachées par un conditionnement plus petit. Calcul dans votre navigateur, sans envoi de fichier.">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">Cost<span>Diff</span></a>
+  <a class="cta" href="app.html">Essayer gratuitement</a>
+</header>
+<main class="page">
+  <section class="hero">
+    <div>
+      <h1>Le nouveau tarif fournisseur est arrivé. Qu'est-ce qui a augmenté&nbsp;?</h1>
+      <p>Déposez l'ancienne et la nouvelle liste de prix (Excel ou CSV, même si les colonnes ont changé). CostDiff vous montre en une minute chaque hausse, chaque baisse, les articles retirés et les <strong>hausses cachées</strong> : même prix, mais 10 paquets au lieu de 12.</p>
+      <a class="cta" href="app.html">Essayer avec vos fichiers</a>
+      <a class="cta" href="app.html?demo=1">ou avec des exemples fictifs</a>
+      <p class="note">Gratuit pendant la version d'essai · aucun compte · 🔒 vos fichiers ne quittent pas votre ordinateur.</p>
+    </div>
+    <img src="img/app-diff.png" alt="Capture de CostDiff : liste des hausses de prix, dont une hausse cachée de 20 % au kilo sur des pâtes">
+  </section>
+
+  <section class="grid3">
+    <div class="box"><h3>1. Deux fichiers, n'importe quel format</h3><p>.xlsx ou .csv, séparateur virgule ou point-virgule, prix « 1.234,56 € » ou « 1,234.56 ». Les lignes de titre au-dessus du tableau sont ignorées et les colonnes reconnues en français, néerlandais, anglais et allemand. Vous pouvez corriger chaque colonne.</p></div>
+    <div class="box"><h3>2. Comparaison au kilo, au litre, à la pièce</h3><p>CostDiff lit le conditionnement (« 12 x 500 g », « 6 x 1 L », « carton de 24 ») et compare le prix unitaire. Une hausse déguisée en réduction de paquet ressort en orange.</p></div>
+    <div class="box"><h3>3. Un rapport à garder</h3><p>Filtrez les hausses, les nouveautés et les articles retirés, puis exportez le rapport en CSV pour Excel, pour mettre à jour vos prix de vente ou négocier.</p></div>
+  </section>
+
+  <section class="box">
+    <h2>Comparer plusieurs fournisseurs</h2>
+    <p>Déposez les listes de 2 à 6 fournisseurs : les produits sont rapprochés par EAN (ou par référence) et le moins cher est surligné, au kilo ou au litre quand les conditionnements diffèrent (10 kg chez l'un, 25 kg chez l'autre).</p>
+  </section>
+
+  <section>
+    <h2>Pourquoi pas Excel ou un assistant IA&nbsp;?</h2>
+    <div class="scroll">
+    <table class="compare-table">
+      <thead><tr><th></th><th>RECHERCHEV dans Excel</th><th>Assistant IA en ligne</th><th>CostDiff</th></tr></thead>
+      <tbody>
+        <tr><td>Colonnes différentes d'un mois à l'autre</td><td>à refaire à la main</td><td>oui</td><td>reconnues, modifiables</td></tr>
+        <tr><td>Hausse cachée par le conditionnement</td><td>formules à écrire</td><td>pas systématique</td><td>calculée pour chaque ligne</td></tr>
+        <tr><td>Chiffres reproductibles et vérifiables</td><td>oui</td><td>peut se tromper, difficile à vérifier ligne par ligne</td><td>oui : calcul déterministe, lignes écartées listées</td></tr>
+        <tr><td>Vos tarifs envoyés à un service tiers</td><td>non</td><td>oui</td><td>non : tout reste dans le navigateur</td></tr>
+        <tr><td>Temps de calcul</td><td>selon vos formules</td><td>variable</td><td>environ 0,1 à 0,2 s du clic au résultat pour deux listes de 5 000 lignes (95 à 184 ms selon les passages, mesurés dans Chrome sur le PC de développement)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pour qui&nbsp;?</h2>
+    <p>Commerces, épiceries fines, restaurants, boutiques en ligne, revendeurs et acheteurs qui reçoivent chaque mois ou chaque trimestre des listes de prix de leurs grossistes, et qui veulent savoir vite ce qui change pour ajuster leurs prix de vente.</p>
+  </section>
+
+  <section>
+    <h2>Tarifs</h2>
+    <div class="plans">
+      <div class="box"><h3>Essai</h3><div class="price">0 €</div><p>Les deux outils, sans limite pendant la version d'essai. Pas de compte, pas de carte.</p><a class="cta" href="app.html">Ouvrir CostDiff</a></div>
+      <div class="box pro"><h3>Pro <span class="note">(en préparation, pas encore disponible)</span></h3><div class="price">12 € / mois</div><p>Prévu : mémorisation des colonnes de chaque fournisseur, historique des tarifs, alerte quand un nouveau tarif dépasse vos seuils, export Excel. Prix indicatif, susceptible de changer. Pour être prévenu de sa sortie : bouton « Watch → Custom → Releases » sur <a href="https://github.com/lukasdevahive/costdiff" rel="noopener">le dépôt GitHub</a>, ou dites-nous ce qu'il vous faudrait dans <a href="https://github.com/lukasdevahive/costdiff/issues" rel="noopener">une issue</a>.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions fréquentes</h2>
+    <details class="box"><summary><strong>Mes fichiers sont-ils envoyés quelque part ?</strong></summary><p>Non. La page est chargée une fois, puis toute la lecture et le calcul se font dans votre navigateur. Vous pouvez le vérifier dans l'onglet « Réseau » des outils de développement de votre navigateur : aucun fichier n'y part.</p></details>
+    <details class="box"><summary><strong>Et les tarifs en PDF ?</strong></summary><p>Pas encore. Demandez à votre fournisseur la version Excel ou CSV (la plupart l'ont), ou exportez le PDF en Excel.</p></details>
+    <details class="box"><summary><strong>Que se passe-t-il pour une ligne illisible ?</strong></summary><p>Elle est écartée et listée (prix « sur demande », référence en double, ligne sans référence). CostDiff n'invente jamais un prix.</p></details>
+  </section>
+</main>
+<footer class="foot">CostDiff · version d'essai · <a href="privacy.html">Confidentialité</a> · <a href="https://github.com/lukasdevahive/costdiff/issues" rel="noopener">Contact, bug ou idée (GitHub)</a> · <a href="https://github.com/lukasdevahive/costdiff" rel="noopener">Code source</a></footer>
+</body>
+</html>

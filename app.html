@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>CostDiff — comparer des listes de prix fournisseurs</title>
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">Cost<span>Diff</span></a>
+  <span class="privacy" title="Aucun fichier n'est envoyé : tout est calculé par votre navigateur.">🔒 Vos fichiers ne quittent pas votre ordinateur</span>
+</header>
+
+<main class="app">
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-diff" aria-selected="true" aria-controls="panel-diff">Hausses de prix d'un fournisseur</button>
+    <button role="tab" id="tab-compare" aria-selected="false" aria-controls="panel-compare">Comparer des fournisseurs</button>
+  </nav>
+
+  <section id="panel-diff" role="tabpanel" aria-labelledby="tab-diff">
+    <p class="lead">Déposez l'ancienne et la nouvelle liste de prix du même fournisseur (Excel .xlsx ou CSV). CostDiff repère les hausses, les baisses, les nouveaux articles, ceux qui disparaissent, et les <strong>hausses cachées</strong> par un conditionnement plus petit.</p>
+    <div class="drops">
+      <div class="drop" data-slot="old">
+        <h3>Ancienne liste</h3>
+        <label class="file"><input type="file" accept=".xlsx,.csv,.txt,.tsv" data-input="old"><span>Choisir un fichier</span></label>
+        <div class="file-info" data-info="old">Aucun fichier</div>
+      </div>
+      <div class="drop" data-slot="new">
+        <h3>Nouvelle liste</h3>
+        <label class="file"><input type="file" accept=".xlsx,.csv,.txt,.tsv" data-input="new"><span>Choisir un fichier</span></label>
+        <div class="file-info" data-info="new">Aucun fichier</div>
+      </div>
+    </div>
+    <p class="sample">Pas de fichier sous la main ? <button class="link" id="sample-diff">Essayer avec deux listes d'exemple fictives</button></p>
+    <div id="mapping-diff" class="mappings"></div>
+    <div class="actions">
+      <label class="inline">Ignorer les variations inférieures à <input type="number" id="threshold" min="0" max="100" step="0.5" value="0"> %</label>
+      <button class="primary" id="run-diff" disabled>Comparer les deux listes</button>
+    </div>
+    <div id="error-diff" class="error" role="alert" hidden></div>
+    <div id="result-diff"></div>
+  </section>
+
+  <section id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" hidden>
+    <p class="lead">Déposez les listes de 2 à 6 fournisseurs. Les produits sont rapprochés par EAN (ou par référence) et comparés <strong>au kilo, au litre ou à la pièce</strong> quand les conditionnements le permettent.</p>
+    <div class="drop wide">
+      <label class="file"><input type="file" accept=".xlsx,.csv,.txt,.tsv" multiple id="input-compare"><span>Ajouter des listes fournisseurs</span></label>
+      <div class="file-info" id="info-compare">Aucun fichier</div>
+    </div>
+    <p class="sample">Pas de fichier sous la main ? <button class="link" id="sample-compare">Essayer avec trois fournisseurs fictifs</button></p>
+    <div id="mapping-compare" class="mappings"></div>
+    <div class="actions">
+      <label class="inline">Rapprocher par
+        <select id="key-compare"><option value="ean">EAN / code-barres</option><option value="sku">référence</option></select>
+      </label>
+      <button class="primary" id="run-compare" disabled>Comparer les fournisseurs</button>
+    </div>
+    <div id="error-compare" class="error" role="alert" hidden></div>
+    <div id="result-compare"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  CostDiff (version d'essai). Calcul local dans le navigateur, aucun envoi de données, aucun compte. Vérifiez toujours les résultats avant une commande.
+  · <a href="index.html">À propos</a> · <a href="privacy.html">Confidentialité</a> · <a href="https://github.com/lukasdevahive/costdiff/issues" rel="noopener">Signaler un problème ou une idée</a>
+</footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
