@@ -22,7 +22,8 @@ Files are never sent anywhere. Everything is computed in the visitor's browser. 
 ## Getting started (Windows, Node 18+)
 
 ```
-cd products\costdiff
+git clone https://github.com/lukasdevahive/costdiff
+cd costdiff
 npm install          # installs playwright-core, used only by the browser test
 npm start            # http://127.0.0.1:8765/
 ```
