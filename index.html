@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>CostDiff — voir en 1 minute ce qui a augmenté dans le nouveau tarif fournisseur</title>
-<meta name="description" content="Comparez l'ancienne et la nouvelle liste de prix d'un fournisseur (Excel ou CSV) : hausses, baisses, articles retirés et hausses cachées par un conditionnement plus petit. Calcul dans votre navigateur, sans envoi de fichier.">
+<meta name="description" content="Comparez l'ancien et le nouveau tarif d'un fournisseur (Excel, CSV) : hausses, baisses, hausses cachées par le conditionnement. Gratuit, sans envoi de fichier.">
 <link rel="canonical" href="https://lukasdevahive.github.io/costdiff/">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
@@ -64,7 +64,7 @@
     <h2>Tarifs</h2>
     <div class="plans">
       <div class="box"><h3>Essai</h3><div class="price">0 €</div><p>Les deux outils, sans limite pendant la version d'essai. Pas de compte, pas de carte.</p><a class="cta" href="app.html">Ouvrir CostDiff</a></div>
-      <div class="box pro"><h3>Pro <span class="note">(en préparation, pas encore disponible)</span></h3><div class="price">12 € / mois</div><p>Prévu : mémorisation des colonnes de chaque fournisseur, historique des tarifs, alerte quand un nouveau tarif dépasse vos seuils, export Excel. Prix indicatif, susceptible de changer. Pour être prévenu de sa sortie : bouton « Watch → Custom → Releases » sur <a href="https://github.com/lukasdevahive/costdiff" rel="noopener">le dépôt GitHub</a>, ou dites-nous ce qu'il vous faudrait dans <a href="https://github.com/lukasdevahive/costdiff/issues" rel="noopener">une issue</a>.</p></div>
+      <div class="box pro"><h3>Pro <span class="note">(en préparation, pas encore disponible)</span></h3><div class="price">12 € / mois</div><p>Prévu : mémorisation des colonnes de chaque fournisseur, historique des tarifs, alerte quand un nouveau tarif dépasse vos seuils, export Excel. Prix indicatif, susceptible de changer.</p><a class="cta" href="pro.html" data-stat="pro-page">Ça m'intéresse : donner mon avis</a></div>
     </div>
   </section>
 
@@ -75,6 +75,7 @@
     <details class="box"><summary><strong>Que se passe-t-il pour une ligne illisible ?</strong></summary><p>Elle est écartée et listée (prix « sur demande », référence en double, ligne sans référence). CostDiff n'invente jamais un prix.</p></details>
   </section>
 </main>
-<footer class="foot">CostDiff · version d'essai · <a href="privacy.html">Confidentialité</a> · <a href="https://github.com/lukasdevahive/costdiff/issues" rel="noopener">Contact, bug ou idée (GitHub)</a> · <a href="https://github.com/lukasdevahive/costdiff" rel="noopener">Code source</a></footer>
+<footer class="foot">CostDiff · version d'essai · <a href="pro.html" data-stat="pro-page">Votre avis sur la version Pro</a> · <a href="privacy.html">Confidentialité</a> · <a href="https://github.com/lukasdevahive/costdiff/issues">Bug ou idée (GitHub)</a> · <a href="https://github.com/lukasdevahive/costdiff">Code source</a></footer>
+<script type="module" src="js/page.js"></script>
 </body>
 </html>

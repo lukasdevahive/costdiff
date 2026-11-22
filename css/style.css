@@ -1,3 +1,6 @@
+/* the hidden attribute always wins over display rules such as .cta { display: inline-block } */
+[hidden] { display: none !important; }
+
 :root {
   --bg: #f6f7f9; --panel: #fff; --text: #1d2433; --muted: #5d6779; --line: #dde2ea;
   --brand: #0b6e4f; --brand-2: #e8f4ef; --up: #b42318; --up-bg: #fdecea; --down: #067647; --down-bg: #e7f6ee;
