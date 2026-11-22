@@ -52,7 +52,7 @@ npm run test:browser   # 20 checks in the installed Google Chrome (playwright-co
 | `scripts/serve.mjs` | Local static server (127.0.0.1 only, security headers) |
 | `scripts/make_samples.mjs` | Generates the fictitious samples |
 | `tests/` | Unit tests and the Chrome test |
-| `docs/` | Product choice, commercial proposal, screenshots |
+| `docs/` | Screenshots from the browser test (the product-choice and commercial notes stay in the private project) |
 
 ## Known limits (v0.1.0)
 
