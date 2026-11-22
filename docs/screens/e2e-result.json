@@ -1,5 +1,5 @@
 {
- "date": "2026-11-22T20:32:21.732Z",
+ "date": "2026-11-22T16:45:09.247Z",
  "browser": "C:/Program Files/Google/Chrome/Application/chrome.exe",
  "results": [
   {
@@ -55,7 +55,7 @@
   {
    "name": "5,000 lines compared in under 3 s (click to result)",
    "ok": true,
-   "detail": "98 ms"
+   "detail": "184 ms"
   },
   {
    "name": "long tables are paged (300 rows first)",

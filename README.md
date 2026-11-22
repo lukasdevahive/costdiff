@@ -19,6 +19,8 @@ Source code is visible for transparency and audit; no licence is granted for reu
 
 Files are never sent anywhere. Everything is computed in the visitor's browser. The browser test confirms that only the page's own files are requested.
 
+**Usage statistics** (when enabled in `web/js/config.js`): cookieless GoatCounter counts, sent by `web/js/stats.js` without any external script. Only page views (path, external referrer without query, campaign tags) and a fixed list of event names (file read, comparison done, export, Pro interest) can be sent; never file names or contents. `tests/browser/stats-e2e.mjs` intercepts every statistics request in Chrome and checks this. Opt out in a browser with `#nostats`.
+
 ## Getting started (Windows, Node 18+)
 
 ```
@@ -33,9 +35,10 @@ Then open http://127.0.0.1:8765/ (presentation page) or http://127.0.0.1:8765/ap
 ## Tests
 
 ```
-npm test               # 17 unit tests (Node, no browser)
+npm test               # 27 unit tests (engine, statistics, site audit; Node, no browser)
+npm run check          # site audit (titles, descriptions, canonical, sitemap, links, CSP = configuration)
 npm start              # in another terminal
-npm run test:browser   # 20 checks in the installed Google Chrome (playwright-core), screenshots in docs/screens/
+npm run test:browser   # 20 product checks + 11 statistics-privacy checks in the installed Google Chrome (playwright-core)
 ```
 
 ## Structure
@@ -52,6 +55,10 @@ npm run test:browser   # 20 checks in the installed Google Chrome (playwright-co
 | `web/js/app.js` | Interface |
 | `scripts/serve.mjs` | Local static server (127.0.0.1 only, security headers) |
 | `scripts/make_samples.mjs` | Generates the fictitious samples |
+| `scripts/configure.mjs` | Statistics code, Pro survey link, public address: updates config, every page's CSP and `_headers` |
+| `scripts/check_site.mjs` | Static site audit before publishing |
+| `scripts/stats_report.mjs` | Funnel report from the GoatCounter API (key in `GOATCOUNTER_TOKEN`) |
+| `scripts/publish_github.mjs` | Publishes source (`main`) and site (`gh-pages`); refuses when the audit fails |
 | `tests/` | Unit tests and the Chrome test |
 | `docs/` | Screenshots from the browser test (the product-choice and commercial notes stay in the private project) |
 

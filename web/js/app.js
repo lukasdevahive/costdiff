@@ -4,6 +4,7 @@ import { buildList, diffLists, compareSuppliers, InputError } from "./engine.js"
 import { toCSV } from "./csv.js";
 import { parsePrice } from "./numbers.js";
 import { formatPack } from "./pack.js";
+import { pageview, track } from "./stats.js";
 
 const $ = (s, root = document) => root.querySelector(s);
 const PAGE = 300;
@@ -34,14 +35,24 @@ function showError(where, err) {
   if (!expected) console.error(err); // a bug: keep it visible to developers
 }
 
+// usage statistics only say whether the visitor's own files or the samples were used: never names or contents
+const sourceOf = (...tables) => (tables.some((t) => t?.source === "own") ? "own" : "sample");
+
 async function fromFile(file) {
-  return loadTable(file.name, await file.arrayBuffer());
+  try {
+    const t = await loadTable(file.name, await file.arrayBuffer());
+    track("file-own-ok");
+    return Object.assign(t, { source: "own" });
+  } catch (e) {
+    track("file-own-error");
+    throw e;
+  }
 }
 
 async function fromSample(name) {
   const r = await fetch(`samples/${encodeURIComponent(name)}`);
   if (!r.ok) throw new InputError(`Exemple introuvable (${r.status}).`);
-  return loadTable(name, await r.arrayBuffer());
+  return Object.assign(await loadTable(name, await r.arrayBuffer()), { source: "sample" });
 }
 
 // ---------- mapping editor ------------------------------------------------------------------
@@ -112,7 +123,8 @@ function runDiff() {
     const res = diffLists(oldL, newL, { threshold });
     const matched = res.changes.filter((c) => !["new", "removed"].includes(c.status)).length;
     if (matched === 0) throw new InputError(`Aucun produit commun trouvé en rapprochant par ${role === "ean" ? "EAN" : "référence"}. Vérifiez que la même colonne identifiant est choisie dans les deux listes.`);
-    renderDiffResult(res, [...decimalNotes([[a.name, oldL], [b.name, newL]]), ...oldL.issues, ...newL.issues], role);
+    renderDiffResult(res, [...decimalNotes([[a.name, oldL], [b.name, newL]]), ...oldL.issues, ...newL.issues], role, sourceOf(a, b));
+    track(`diff-done-${sourceOf(a, b)}`);
   } catch (e) { showError("diff", e); }
 }
 
@@ -120,7 +132,7 @@ const STATUS = {
   up: ["Hausse", "up"], down: ["Baisse", "down"], same: ["Inchangé", "same"], new: ["Nouveau", "new"], removed: ["Retiré", "removed"],
 };
 
-function renderDiffResult({ changes, summary }, issues, role) {
+function renderDiffResult({ changes, summary }, issues, role, source) {
   const out = $("#result-diff");
   const cards = el("div", { class: "cards" },
     card(summary.up, "hausses", "up", summary.avgUpPct !== null ? `moyenne ${pctFmt.format(summary.avgUpPct)} %` : ""),
@@ -140,7 +152,7 @@ function renderDiffResult({ changes, summary }, issues, role) {
   for (const [f, label] of [["all", "Tout"], ["up", "Hausses"], ["hidden", "Cachées"], ["down", "Baisses"], ["new", "Nouveaux"], ["removed", "Retirés"], ["same", "Inchangés"]]) {
     chips.append(el("button", { "data-f": f, onclick: () => { filter = f; draw(); } }, label));
   }
-  const exportBtn = el("button", { class: "secondary", onclick: () => download("costdiff-variations.csv", diffCSV(changes)) }, "Exporter le rapport (CSV)");
+  const exportBtn = el("button", { class: "secondary", onclick: () => { download("costdiff-variations.csv", diffCSV(changes)); track(`export-diff-${source}`); } }, "Exporter le rapport (CSV)");
   out.replaceChildren(...[
     el("h2", {}, "Résultat"),
     el("p", { class: "muted" }, `Rapprochement par ${role === "ean" ? "EAN" : "référence"} · ${changes.length} produits · variation calculée au kilo, au litre ou à la pièce quand le conditionnement change.`),
@@ -272,11 +284,13 @@ function runCompare() {
     }
     const res = compareSuppliers(lists);
     if (!res.summary.comparable) throw new InputError(`Aucun produit présent chez au moins deux fournisseurs en rapprochant par ${role === "ean" ? "EAN" : "référence"}. Les références des fournisseurs diffèrent souvent : essayez l'EAN.`);
-    renderCompareResult(res, lists, [...decimalNotes(lists.map((l) => [l.label, l.list])), ...lists.flatMap((l) => l.list.issues)]);
+    const source = sourceOf(...state.compare);
+    renderCompareResult(res, lists, [...decimalNotes(lists.map((l) => [l.label, l.list])), ...lists.flatMap((l) => l.list.issues)], source);
+    track(`compare-done-${source}`);
   } catch (e) { showError("compare", e); }
 }
 
-function renderCompareResult({ rows, summary }, lists, issues) {
+function renderCompareResult({ rows, summary }, lists, issues, source) {
   const out = $("#result-compare");
   const cards = el("div", { class: "cards" },
     card(summary.comparable, "produits comparables", "up", "présents chez 2 fournisseurs ou plus"),
@@ -299,7 +313,7 @@ function renderCompareResult({ rows, summary }, lists, issues) {
       el("td", {}, r.basis), el("td", { class: "num" }, r.spreadPct === null ? "" : `${pctFmt.format(r.spreadPct)} %`)), head));
   };
   const toggle = el("label", { class: "inline" }, el("input", { type: "checkbox", checked: true, onchange: (e) => { onlyComparable = e.target.checked; draw(); } }), " seulement les produits comparables");
-  const exportBtn = el("button", { class: "secondary", onclick: () => download("costdiff-fournisseurs.csv", compareCSV(rows, lists)) }, "Exporter (CSV)");
+  const exportBtn = el("button", { class: "secondary", onclick: () => { download("costdiff-fournisseurs.csv", compareCSV(rows, lists)); track(`export-compare-${source}`); } }, "Exporter (CSV)");
   out.replaceChildren(...[el("h2", {}, "Résultat"),
     el("p", { class: "muted" }, "Le meilleur prix est en vert. La comparaison se fait au kilo, au litre ou à la pièce quand chaque offre a un conditionnement dans la même unité ; sinon, prix par ligne (à vérifier)."),
     cards, issuesBox(issues), el("div", { class: "toolbar" }, toggle, exportBtn), tableBox].filter(Boolean)); // issuesBox() is null when nothing was rejected
@@ -331,6 +345,7 @@ document.querySelectorAll("[data-input]").forEach((inp) => inp.addEventListener(
   inp.value = "";
 }));
 $("#sample-diff").addEventListener("click", async () => {
+  track("sample-loaded");
   await setDiff("old", () => fromSample("fournisseur-janvier.csv"));
   await setDiff("new", () => fromSample("fournisseur-fevrier.xlsx"));
 });
@@ -341,6 +356,7 @@ $("#input-compare").addEventListener("change", (e) => {
   e.target.value = "";
 });
 $("#sample-compare").addEventListener("click", () => {
+  track("sample-loaded");
   state.compare = [];
   addCompare(["supplier-a.csv", "supplier-b.csv", "supplier-c.xlsx"].map((n) => () => fromSample(n)));
 });
@@ -357,6 +373,9 @@ document.querySelectorAll(".drop").forEach((zone) => {
     else addCompare(files.map((f) => () => fromFile(f)));
   });
 });
+
+pageview();
+document.querySelectorAll("[data-stat]").forEach((a) => a.addEventListener("click", () => track(a.dataset.stat)));
 
 try { if (localStorage.getItem("costdiff-tab") === "compare") selectTab("compare"); } catch { /* private mode */ }
 // link from the landing page: open the price-change tool with the fictitious samples already loaded

@@ -8,7 +8,9 @@
     "start": "node scripts/serve.mjs 8765",
     "samples": "node scripts/make_samples.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "node tests/browser/e2e.mjs"
+    "test:browser": "node tests/browser/e2e.mjs && node tests/browser/stats-e2e.mjs",
+    "check": "node scripts/check_site.mjs && node scripts/configure.mjs --check",
+    "configure": "node scripts/configure.mjs"
   },
   "devDependencies": {
     "playwright-core": "1.49.1"
