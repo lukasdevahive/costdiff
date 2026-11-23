@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://costdiff.goatcounter.com; connect-src 'self' https://costdiff.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Confidentialité · CostDiff</title>
 <meta name="description" content="CostDiff calcule tout dans votre navigateur : vos listes de prix ne sont jamais envoyées. Ce que la page mesure ou non, qui la publie et comment le contacter.">
@@ -20,8 +20,17 @@
   <p><strong>Vos listes de prix ne sont jamais envoyées.</strong> Les fichiers que vous déposez sont lus et comparés par votre navigateur. Aucun fichier, nom de fichier, ligne, prix, référence, EAN ou résultat n'est transmis à CostDiff ni à un tiers, y compris à l'outil de mesure d'audience décrit ci-dessous.</p>
 
   <!-- gen:stats -->
-  <h2>Mesure d'audience : pas encore active</h2>
-  <p>Aujourd'hui, CostDiff n'envoie aucune statistique : aucune requête n'est faite vers GoatCounter ni vers un autre service de mesure. Si la mesure est activée, elle utilisera <a href="https://www.goatcounter.com/help/privacy">GoatCounter</a>, un service sans cookie hébergé dans l'Union européenne, et cette page sera mise à jour avant l'activation.</p>
+  <h2>Mesure d'audience (GoatCounter)</h2>
+  <p>Pour savoir si CostDiff est utile, nous comptons les visites avec <a href="https://www.goatcounter.com/help/privacy">GoatCounter</a>, un service de statistiques sans cookie hébergé dans l'Union européenne (serveurs Hetzner en Finlande et en Allemagne).</p>
+  <p>Ce qui est envoyé, et rien d'autre :</p>
+  <ul>
+    <li>la page vue (présentation, outil, Pro, confidentialité), sans les paramètres de l'adresse ;</li>
+    <li>le site d'où vous venez (par exemple « www.google.com » ou le nom d'un forum), sans la page ni les termes de recherche ;</li>
+    <li>les étiquettes de campagne éventuelles d'un lien (par exemple <code>utm_source=forum</code>) ;</li>
+    <li>des événements de nom fixe : « fichier personnel lu », « fichier refusé », « exemples chargés », « comparaison terminée », « rapport exporté », « clic vers la page Pro », « clic vers le questionnaire », « clic sur le contact » (avec son motif : question, problème, suggestion, Pro, démonstration), en distinguant seulement vos fichiers des fichiers d'exemple.</li>
+  </ul>
+  <p>Comme tout serveur, GoatCounter reçoit votre adresse IP et l'identification de votre navigateur. D'après sa politique de confidentialité, il ne les conserve pas : il en déduit le pays, le navigateur et le système, et ne garde que des totaux ; un identifiant anonyme et temporaire, effacé après quelques heures, sert seulement à ne pas compter deux fois la même visite (l'enregistrement des vues individuelles est désactivé pour CostDiff). Aucun cookie et aucun stockage dans votre navigateur ne servent à la mesure. Fondement : l'intérêt légitime du responsable à savoir si l'outil est utilisé.</p>
+  <p>Vous pouvez désactiver la mesure pour votre navigateur en ouvrant <a href="index.html#nostats">cette adresse</a> (et la réactiver avec <a href="index.html#stats">celle-ci</a>). Ce choix est gardé dans le stockage local de votre navigateur.</p>
   <!-- /gen:stats -->
 
   <!-- gen:form -->
@@ -31,12 +40,12 @@
   <p>Les pages sont servies par GitHub Pages (GitHub, Inc.), qui peut enregistrer des journaux techniques de connexion (adresse IP, date, page demandée) ; voir la <a href="https://docs.github.com/fr/site-policy/privacy-policies/github-general-privacy-statement">déclaration de confidentialité de GitHub</a>. CostDiff n'a pas accès à ces journaux.</p>
 
   <!-- gen:publisher -->
-  <h2>Éditeur et contact</h2>
-  <p>CostDiff est publié par le titulaire du compte GitHub <a href="https://github.com/lukasdevahive">lukasdevahive</a>, à titre personnel (aucune société). L'éditeur ne traite lui-même aucune donnée personnelle : il n'y a ni compte, ni mesure d'audience, ni formulaire.</p>
-  <p>Contact : <a href="https://github.com/lukasdevahive/costdiff/issues">issues du dépôt GitHub</a> (publiques : n'y mettez pas vos tarifs).</p>
+  <h2>Responsable du traitement et contact</h2>
+  <p>Responsable du traitement : Lukas, à titre personnel (aucune société). Contact : <a href="mailto:lukas.cmpro@gmail.com" data-stat="contact-click">lukas.cmpro@gmail.com</a>.</p>
+  <p>Cette messagerie est hébergée par Google (Gmail), qui peut traiter les messages hors de l'Union européenne selon ses propres garanties (clauses contractuelles types). Les messages envoyés à cette adresse servent uniquement à vous répondre et sont supprimés au plus tard 12 mois après le dernier échange. Vous pouvez demander l'accès, la correction ou la suppression de vos données à cette adresse, et introduire une réclamation auprès de l'Autorité de protection des données (Belgique). Questions techniques : <a href="https://github.com/lukasdevahive/costdiff/issues">issues du dépôt GitHub</a> (publiques : n'y mettez pas vos tarifs).</p>
   <!-- /gen:publisher -->
 
-  <p class="note">Dernière mise à jour : 22 novembre 2026.</p>
+  <p class="note">Dernière mise à jour : 23 novembre 2026.</p>
 </main>
 <footer class="foot">CostDiff · version d'essai · <a href="index.html">Présentation</a> · <a href="app.html">Outil</a></footer>
 <script type="module" src="js/page.js"></script>

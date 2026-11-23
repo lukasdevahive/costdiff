@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://costdiff.goatcounter.com; connect-src 'self' https://costdiff.goatcounter.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>CostDiff Pro (en préparation) : dites-nous ce qu'il vous faut</title>
 <meta name="description" content="CostDiff Pro est en préparation : mémoire des colonnes de chaque fournisseur, historique des tarifs, alertes. Dites-nous ce qui vous serait utile.">
@@ -39,8 +39,24 @@
     <p data-pro-fallback>Dites-nous ce qu'il vous faudrait : <a data-contact data-stat="contact-click" href="#" hidden></a><span data-contact-fallback>par une <a href="https://github.com/lukasdevahive/costdiff/issues" data-stat="contact-click">issue GitHub</a> (publique, compte GitHub nécessaire)</span>.</p>
     <p class="note" data-form-section hidden>Le questionnaire est hébergé par Tally (Belgique, Union européenne). Détails dans la page <a href="privacy.html">Confidentialité</a>.</p>
   </section>
+
+  <section class="box" id="contact">
+    <h2>Nous écrire</h2>
+    <div data-contact-list hidden>
+    <p>Sans compte : chaque lien ouvre votre messagerie avec un objet déjà rempli.</p>
+    <ul>
+      <li><a data-contact-subject="Demande de renseignements" data-stat="contact-question" href="#">Une question sur CostDiff</a></li>
+      <li><a data-contact-subject="Problème" data-stat="contact-bug" href="#">Signaler un problème</a> (dites-nous le format du fichier et ce qui s'affiche, sans joindre le fichier)</li>
+      <li><a data-contact-subject="Suggestion" data-stat="contact-idea" href="#">Proposer une amélioration</a></li>
+      <li><a data-contact-subject="Version Pro" data-stat="contact-pro" href="#">Être prévenu de la version Pro</a></li>
+      <li><a data-contact-subject="Démonstration" data-stat="contact-demo" href="#">Demander une démonstration</a> (15 minutes en visio, avec les fichiers d'exemple)</li>
+    </ul>
+    </div>
+    <p data-contact-fallback>Pour l'instant : une <a href="https://github.com/lukasdevahive/costdiff/issues" data-stat="contact-click">issue GitHub</a> (publique, compte GitHub nécessaire).</p>
+    <p class="note">Ne joignez jamais de tarif fournisseur ni de prix confidentiels. Vos messages servent uniquement à vous répondre (voir <a href="privacy.html">Confidentialité</a>).</p>
+  </section>
 </main>
-<footer class="foot">CostDiff · version d'essai · <a href="index.html">Présentation</a> · <a href="app.html">Outil</a> · <a href="privacy.html">Confidentialité</a></footer>
+<footer class="foot">CostDiff · version d'essai · <a href="index.html">Présentation</a> · <a href="app.html">Outil</a> · <a href="privacy.html">Confidentialité</a> · <a href="#contact">Contact</a></footer>
 <script type="module" src="js/page.js"></script>
 </body>
 </html>

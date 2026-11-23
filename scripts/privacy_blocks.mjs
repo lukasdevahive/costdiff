@@ -15,9 +15,9 @@ export function statsBlock(cfg) {
     <li>la page vue (présentation, outil, Pro, confidentialité), sans les paramètres de l'adresse ;</li>
     <li>le site d'où vous venez (par exemple « www.google.com » ou le nom d'un forum), sans la page ni les termes de recherche ;</li>
     <li>les étiquettes de campagne éventuelles d'un lien (par exemple <code>utm_source=forum</code>) ;</li>
-    <li>des événements de nom fixe : « fichier personnel lu », « fichier refusé », « exemples chargés », « comparaison terminée », « rapport exporté », « clic vers la page Pro », « clic vers le questionnaire », « clic sur le contact », en distinguant seulement vos fichiers des fichiers d'exemple.</li>
+    <li>des événements de nom fixe : « fichier personnel lu », « fichier refusé », « exemples chargés », « comparaison terminée », « rapport exporté », « clic vers la page Pro », « clic vers le questionnaire », « clic sur le contact » (avec son motif : question, problème, suggestion, Pro, démonstration), en distinguant seulement vos fichiers des fichiers d'exemple.</li>
   </ul>
-  <p>Comme tout serveur, GoatCounter reçoit votre adresse IP et l'identification de votre navigateur. D'après sa politique de confidentialité, il ne les conserve pas : il en déduit le pays, le navigateur et le système, et ne garde que des totaux (l'enregistrement des vues individuelles est désactivé pour CostDiff). Aucun cookie et aucun stockage dans votre navigateur ne servent à la mesure. Fondement : l'intérêt légitime du responsable à savoir si l'outil est utilisé.</p>
+  <p>Comme tout serveur, GoatCounter reçoit votre adresse IP et l'identification de votre navigateur. D'après sa politique de confidentialité, il ne les conserve pas : il en déduit le pays, le navigateur et le système, et ne garde que des totaux ; un identifiant anonyme et temporaire, effacé après quelques heures, sert seulement à ne pas compter deux fois la même visite (l'enregistrement des vues individuelles est désactivé pour CostDiff). Aucun cookie et aucun stockage dans votre navigateur ne servent à la mesure. Fondement : l'intérêt légitime du responsable à savoir si l'outil est utilisé.</p>
   <p>Vous pouvez désactiver la mesure pour votre navigateur en ouvrant <a href="index.html#nostats">cette adresse</a> (et la réactiver avec <a href="index.html#stats">celle-ci</a>). Ce choix est gardé dans le stockage local de votre navigateur.</p>`;
 }
 
@@ -38,7 +38,7 @@ export function publisherBlock(cfg) {
   }
   return `  <h2>Responsable du traitement et contact</h2>
   <p>Responsable du traitement : ${esc(cfg.controller)}, à titre personnel (aucune société). Contact : <a href="mailto:${esc(cfg.contact)}" data-stat="contact-click">${esc(cfg.contact)}</a>.</p>
-  <p>Les messages envoyés à cette adresse servent uniquement à vous répondre et sont supprimés au plus tard 12 mois après le dernier échange. Vous pouvez demander l'accès, la correction ou la suppression de vos données à cette adresse, et introduire une réclamation auprès de l'Autorité de protection des données (Belgique). Questions techniques : ${issues}.</p>`;
+  <p>Cette messagerie est hébergée par Google (Gmail), qui peut traiter les messages hors de l'Union européenne selon ses propres garanties (clauses contractuelles types). Les messages envoyés à cette adresse servent uniquement à vous répondre et sont supprimés au plus tard 12 mois après le dernier échange. Vous pouvez demander l'accès, la correction ou la suppression de vos données à cette adresse, et introduire une réclamation auprès de l'Autorité de protection des données (Belgique). Questions techniques : ${issues}.</p>`;
 }
 
 /** Replace the <!-- gen:NAME --> ... <!-- /gen:NAME --> blocks of privacy.html. */

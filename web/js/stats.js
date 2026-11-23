@@ -18,6 +18,11 @@ export const EVENTS = Object.freeze({
   "pro-page": "Clic vers la page Pro",
   "pro-form": "Clic vers le questionnaire Pro",
   "contact-click": "Clic sur le contact",
+  "contact-question": "Contact : demande de renseignements",
+  "contact-bug": "Contact : signalement d'un problème",
+  "contact-idea": "Contact : suggestion",
+  "contact-pro": "Contact : intérêt pour la version Pro",
+  "contact-demo": "Contact : demande de démonstration",
 });
 
 const PAGES = new Set(["/", "/index.html", "/app.html", "/privacy.html", "/pro.html", "/404.html"]);

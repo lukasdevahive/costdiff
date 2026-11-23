@@ -87,6 +87,19 @@ try {
     !(await page.locator("[data-pro-form]").isVisible()) && (await page.locator("[data-form-section]").evaluateAll((ns) => ns.every((n) => n.offsetParent === null))));
   check("click towards the Pro page counted, then the Pro page view", events().includes("pro-page") && views().includes("/pro.html"));
 
+  // contact without a GitHub account: one mailto per reason, counted by reason (only when a contact address is configured)
+  const contacts = await page.locator("[data-contact-subject]").evaluateAll((ns) => ns.map((n) => ({ href: n.href, visible: n.offsetParent !== null })));
+  const email = (fs.readFileSync(new URL("../../web/js/config.js", import.meta.url), "utf8").match(/CONTACT_EMAIL = "([^"]*)"/) || [])[1];
+  if (email) {
+    check("5 contact reasons, each a mailto to the dedicated address with a subject", contacts.length === 5 && contacts.every((c) => c.visible && c.href.startsWith(`mailto:${email}?subject=CostDiff`)), contacts.map((c) => decodeURIComponent(c.href).split("&")[0]).join(" | "));
+    await page.evaluate(() => { for (const a of document.querySelectorAll("[data-contact-subject]")) a.addEventListener("click", (e) => e.preventDefault()); });
+    await page.click('[data-stat="contact-pro"]');
+    await settle();
+    check("a contact click is counted with its reason", events().includes("contact-pro"));
+  } else {
+    check("no contact address: reasons hidden, GitHub fallback shown", contacts.every((c) => !c.visible) && (await page.locator("#contact [data-contact-fallback]").isVisible()));
+  }
+
   const leaked = sent.filter((u) => SECRETS.some((s) => decodeURIComponent(u).includes(s)));
   check("no file name, EAN, reference, product name or price in any statistics request", sent.length > 5 && leaked.length === 0, `${sent.length} requêtes inspectées${leaked.length ? " ; fuite : " + leaked[0] : ""}`);
   const params = new Set(sent.flatMap((u) => [...new URL(u).searchParams.keys()]));

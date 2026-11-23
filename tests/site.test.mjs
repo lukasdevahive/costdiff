@@ -26,7 +26,10 @@ function onCopy(fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "costdiff-cfg-"));
   try {
     fs.cpSync(path.join(ROOT, "web"), dir, { recursive: true });
-    return fn(dir, (...args) => execFileSync(process.execPath, [path.join(ROOT, "scripts", "configure.mjs"), ...args], { env: { ...process.env, COSTDIFF_WEB: dir }, stdio: "pipe" }).toString());
+    const run = (...args) => execFileSync(process.execPath, [path.join(ROOT, "scripts", "configure.mjs"), ...args], { env: { ...process.env, COSTDIFF_WEB: dir }, stdio: "pipe" }).toString();
+    // every test starts from a site with nothing enabled, whatever the real configuration is
+    run("--goatcounter", "none", "--form", "none", "--contact", "none", "--controller", "none");
+    return fn(dir, run);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 }
 

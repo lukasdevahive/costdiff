@@ -33,7 +33,12 @@ export function funnel(hits) {
     ["Essais avec les exemples", n("sample-loaded")],
     ["Clics vers la page Pro", n("pro-page")],
     ["Clics vers le questionnaire Pro", n("pro-form")],
-    ["Clics sur le contact", n("contact-click")],
+    ["Clics sur l'adresse de contact ou les issues GitHub (sans motif)", n("contact-click")],
+    ["Contacts : renseignements", n("contact-question")],
+    ["Contacts : problème", n("contact-bug")],
+    ["Contacts : suggestion", n("contact-idea")],
+    ["Contacts : intérêt Pro", n("contact-pro")],
+    ["Contacts : démonstration", n("contact-demo")],
   ];
 }
 
