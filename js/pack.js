@@ -6,7 +6,8 @@ const UNITS = {
   l: ["l", 1], lt: ["l", 1], ltr: ["l", 1], liter: ["l", 1], litre: ["l", 1], litres: ["l", 1], liters: ["l", 1],
   cl: ["l", 0.01], ml: ["l", 0.001], dl: ["l", 0.1],
 };
-const PACK_WORDS = /\b(?:box|case|carton|colis|pack|doos|karton|lot|bag|sac|tray|plateau)\s*(?:of|de|van|à)?\s*(\d+)\b/i;
+// "boîte de 100" / "sachet de 50" (hardware, packaging) read as a count of pieces
+const PACK_WORDS = /\b(?:box|case|carton|colis|pack|doos|karton|lot|bag|sachet|sac|tray|plateau|boîte|boite|paquet|zak|blister)\s*(?:of|de|van|à)?\s*(\d+)\b/i;
 
 function num(s) { return Number(String(s).replace(",", ".")); }
 
@@ -49,9 +50,11 @@ export function parsePack(input) {
 
 function round(n) { return Math.round(n * 1e6) / 1e6; }
 
+/** Display only (French decimal comma: "7,92 l"); the amounts used in calculations are not changed. */
 export function formatPack(p) {
   if (!p) return "";
-  if (p.unit === "pc") return `${p.amount} pc`;
-  if (p.unit === "kg") return p.amount < 1 ? `${round(p.amount * 1000)} g` : `${p.amount} kg`;
-  return p.amount < 1 ? `${round(p.amount * 100)} cl` : `${p.amount} l`;
+  const fr = (n) => String(n).replace(".", ",");
+  if (p.unit === "pc") return `${fr(p.amount)} pc`;
+  if (p.unit === "kg") return p.amount < 1 ? `${fr(round(p.amount * 1000))} g` : `${fr(p.amount)} kg`;
+  return p.amount < 1 ? `${fr(round(p.amount * 100))} cl` : `${fr(p.amount)} l`;
 }

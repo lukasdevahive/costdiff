@@ -215,8 +215,9 @@ function packCell(c) {
 
 function issuesBox(issues) {
   if (!issues.length) return null;
-  const labels = { duplicate: "doublon", "bad-price": "prix illisible", "missing-key": "sans référence", decimal: "séparateur décimal" };
-  return el("details", { class: "issues", open: issues.some((i) => i.type === "decimal") },
+  const labels = { duplicate: "doublon", "bad-price": "prix illisible", "missing-key": "sans référence", "sci-key": "code abîmé par Excel", "bad-ean": "EAN invalide", decimal: "séparateur décimal" };
+  // warnings that change which products are compared are shown open, not folded away
+  return el("details", { class: "issues", open: issues.some((i) => ["decimal", "sci-key", "bad-ean"].includes(i.type)) },
     el("summary", {}, `${issues.length} point(s) à vérifier (lignes écartées, lectures supposées)`),
     el("ul", {}, issues.slice(0, 200).map((i) => el("li", {}, `${i.file}${i.line ? ` · ligne ${i.line}` : ""}${i.key ? ` · ${i.key}` : ""} : ${labels[i.type] || i.type} — ${i.detail}`))),
     issues.length > 200 ? el("p", { class: "muted" }, `… et ${issues.length - 200} autres.`) : null);
