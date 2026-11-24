@@ -207,3 +207,57 @@ test("end to end: three fictitious suppliers matched on EAN", async () => {
   assert.equal(flour.best, "supplier-b.csv"); // 0.74/kg vs 0.756 and 0.776
   assert.equal(r.summary.onlyOne, 1);         // cane sugar only at B
 });
+
+// Realistic supplier formats checked on 24/11 (see docs/LIMITES.md)
+const csvBuf = (s, cp1252 = false) => {
+  const b = cp1252 ? Uint8Array.from([...s].map((c) => (c === "€" ? 0x80 : c.charCodeAt(0) & 255))) : new TextEncoder().encode(s);
+  return b.buffer;
+};
+async function diffCsv(a, b, cp1252 = false) {
+  const A = await loadTable("old.csv", csvBuf(a, cp1252)), B = await loadTable("new.csv", csvBuf(b, cp1252));
+  const la = buildList(A.data, listMapping(A, A.mapping), "old"), lb = buildList(B.data, listMapping(B, B.mapping), "new");
+  return { la, lb, ...diffLists(la, lb) };
+}
+
+test("formats: Excel FR export (Windows-1252, title lines, € and thousands) finds the hidden increase", async () => {
+  const head = "Tarif Grossiste 2026\nValable au 01/01/2026\n\nRéf.;Désignation;Conditionnement;Prix HT\n";
+  const r = await diffCsv(head + "A100;Pâtes;12 x 500 g;24,00 €\nA200;Huile;6 x 1 L;1.234,56 €\n",
+    head + "A100;Pâtes;10 x 500 g;24,00 €\nA200;Huile;6 x 1 L;1.250,00 €\n", true);
+  const byKey = Object.fromEntries(r.changes.map((c) => [c.key, c]));
+  assert.equal(byKey.A100.hidden, true);
+  assert.equal(byKey.A100.effectivePct, 20);
+  assert.equal(byKey.A200.newPrice, 1250);
+});
+
+
+
+
+
+test("formats: Dutch tab export and leading zeros vs. Excel numbers", async () => {
+  const nl = await diffCsv("Artikelnr\tOmschrijving\tVerpakking\tPrijs excl. btw\n1001\tMelk\t6x1L\t5,40\n", "Artikelnr\tOmschrijving\tVerpakking\tPrijs excl. btw\n1001\tMelk\t6x1L\t5,70\n");
+  assert.equal(nl.changes[0].status, "up");
+  const z = await diffCsv('Code;Libellé;Prix\n00123;"Vis; tête plate";12,50\n', 'Code;Libellé;Prix\n123;"Vis; tête plate";13,10\n');
+  assert.equal(z.changes.length, 1);
+  assert.equal(z.changes[0].key, "123");
+});
+
+test("formats: known limits stay visible (gross price + discount column, TOTAL row)", async () => {
+  // the discount column is not applied: a 30% -> 25% discount change is NOT detected (documented limit)
+  const d = await diffCsv("Réf;Désignation;Prix brut;Remise %\nR1;A;100,00;30\n", "Réf;Désignation;Prix brut;Remise %\nR1;A;100,00;25\n");
+  assert.equal(d.changes[0].status, "same");
+  // a TOTAL line is read as a product (documented limit)
+  const t = await diffCsv("SKU,Item,Unit price\nX1,W,10.00\nTOTAL,,10.00\n", "SKU,Item,Unit price\nX1,W,11.00\n");
+  assert.ok(t.changes.some((c) => c.key === "TOTAL" && c.status === "removed"));
+});
+
+test("formats: French 'Article' column holding product names is the name, and EAN becomes the key", () => {
+  const m = guessMapping(["EAN", "Article", "Conditionnement", "Prix HT"],
+    [["5400000000017", "Bière blonde pils", "24 x 25 cl", 18.9], ["5400000000055", "Cola", "24 x 33 cl", 19.8], ["5400000000031", "Eau plate", "24 x 50 cl", 9.6]]);
+  assert.equal(m.name, 1);
+  assert.equal(m.sku, -1);
+  assert.equal(m.ean, 0);
+  // a real reference column titled "Article" keeps its role
+  const r = guessMapping(["Article", "Désignation", "Prix"], [["VIS-440", "Vis inox", "8,40"], ["CHV-08", "Chevilles", "4,90"]]);
+  assert.equal(r.sku, 0);
+  assert.equal(r.name, 1);
+});

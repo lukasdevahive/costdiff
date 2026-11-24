@@ -65,7 +65,16 @@ export function guessMapping(headers, sampleRows = []) {
     });
     if (best >= 0) { out[role] = best; used.add(best); }
   }
+  // French price lists often title the product NAME "Article" (also a reference synonym): a "reference" column
+  // holding mostly words ("Bière blonde pils") is the name, so the products are matched on their EAN instead
+  if (out.name < 0 && out.sku >= 0 && wordShare(sampleRows, out.sku) > 0.6) { out.name = out.sku; out.sku = -1; }
   return out;
+}
+
+function wordShare(rows, col) {
+  const vals = rows.map((r) => r?.[col]).filter((v) => v !== undefined && String(v).trim() !== "");
+  if (!vals.length) return 0;
+  return vals.filter((v) => /[a-zà-ÿ]{3}/.test(String(v))).length / vals.length;
 }
 
 function numericShare(rows, col) {

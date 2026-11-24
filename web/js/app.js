@@ -136,7 +136,7 @@ function renderDiffResult({ changes, summary }, issues, role, source) {
   const out = $("#result-diff");
   const cards = el("div", { class: "cards" },
     card(summary.up, "hausses", "up", summary.avgUpPct !== null ? `moyenne ${pctFmt.format(summary.avgUpPct)} %` : ""),
-    card(summary.hidden, "hausses cachées", "hidden", "même prix, paquet plus petit"),
+    card(summary.hidden, "hausses cachées", "hidden", "paquet plus petit, prix unitaire en hausse"),
     card(summary.down, "baisses", "down"),
     card(summary.new, "nouveaux", "new"),
     card(summary.removed, "retirés", "removed"),
@@ -192,7 +192,8 @@ function diffTable(rows) {
       el("td", {}, c.name || ""),
       el("td", { class: "num" }, c.oldPrice !== undefined ? money.format(c.oldPrice) : ""),
       el("td", { class: "num" }, c.newPrice !== undefined ? money.format(c.newPrice) : ""),
-      el("td", { class: `num ${pct > 0 ? "pos" : pct < 0 ? "neg" : ""}` }, pct === null || pct === undefined ? "" : `${pctFmt.format(pct)} %`),
+      // when the pack size changed, the variation is per kg / l / piece: say so, next to a pack price that may have fallen
+      el("td", { class: `num ${pct > 0 ? "pos" : pct < 0 ? "neg" : ""}` }, pct === null || pct === undefined ? "" : `${pctFmt.format(pct)} %${c.packChanged && c.unitPct !== null ? ` / ${c.newPack.unit}` : ""}`),
       el("td", {}, packCell(c)));
   }, ["Statut", "Référence", "Désignation", "Ancien prix", "Nouveau prix", "Variation", "Conditionnement"]);
 }
