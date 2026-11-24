@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 
 import { parsePrice, detectDecimal, countAmbiguous } from "../web/js/numbers.js";
 import { parseCSV, detectDelimiter, toCSV } from "../web/js/csv.js";
-import { parsePack } from "../web/js/pack.js";
+import { parsePack, formatPack } from "../web/js/pack.js";
 import { detectHeaderRow, guessMapping } from "../web/js/columns.js";
-import { buildList, diffLists, compareSuppliers, normKey } from "../web/js/engine.js";
+import { buildList, diffLists, compareSuppliers, normKey, gtinValid, expandScientific } from "../web/js/engine.js";
 import { readXlsx } from "../web/js/xlsx.js";
 import { loadTable, listMapping, LoadError } from "../web/js/load.js";
 import { xlsxBytes } from "../scripts/xlsx_writer.mjs";
@@ -96,7 +96,7 @@ test("header row below a title block, and columns guessed in FR / NL / EN", () =
 });
 
 test("EAN keys match across EAN-13, GTIN-14 and Excel numbers", () => {
-  assert.equal(normKey("05400000000017", "ean"), normKey(5400000000017, "ean"));
+  assert.equal(normKey("05400000000010", "ean"), normKey(5400000000010, "ean"));
   assert.equal(normKey(" fa r-055 ", "sku"), "FAR-055");
   assert.equal(normKey("00123", "sku"), normKey(123, "sku")); // Excel drops leading zeros of numeric references
   assert.equal(normKey("0", "sku"), "0");
@@ -153,23 +153,23 @@ test("xlsx: styled empty cells at the end of a row do not create columns", async
 
 test("supplier comparison per kg / l when every offer has a pack size, otherwise per line", () => {
   const m = { key: 0, keyRole: "ean", name: 1, price: 2, pack: 3 };
-  const a = buildList([["5400000000017", "Flour", "18.90", "25 kg"], ["5400000000062", "Coffee", "89.00", "6 x 1 kg"], ["111", "Thing", "5", ""]], m);
-  const b = buildList([["05400000000017", "Bloem", "7.40", "10 kg"], ["05400000000062", "Koffie", "15.90", "1 kg"], ["111", "Thing", "4", ""]], m);
+  const a = buildList([["5400000000010", "Flour", "18.90", "25 kg"], ["5400000000065", "Coffee", "89.00", "6 x 1 kg"], ["96385074", "Thing", "5", ""]], m);
+  const b = buildList([["05400000000010", "Bloem", "7.40", "10 kg"], ["05400000000065", "Koffie", "15.90", "1 kg"], ["96385074", "Thing", "4", ""]], m);
   const r = compareSuppliers([{ label: "A", list: a }, { label: "B", list: b }]);
   const by = Object.fromEntries(r.rows.map((x) => [x.key, x]));
-  assert.equal(by["5400000000017"].best, "B");   // 0.74/kg vs 0.756/kg
-  assert.equal(by["5400000000017"].basis, "par kg");
-  assert.equal(by["5400000000062"].best, "A");   // 14.83/kg vs 15.90/kg
-  assert.equal(by["111"].basis, "par ligne");
-  assert.equal(by["111"].best, "B");
+  assert.equal(by["5400000000010"].best, "B");   // 0.74/kg vs 0.756/kg
+  assert.equal(by["5400000000010"].basis, "par kg");
+  assert.equal(by["5400000000065"].best, "A");   // 14.83/kg vs 15.90/kg
+  assert.equal(by["96385074"].basis, "par ligne");
+  assert.equal(by["96385074"].best, "B");
   assert.throws(() => compareSuppliers([{ label: "A", list: a }]), /au moins deux/);
 });
 
 test("xlsx reader: shared strings, numbers, sparse cells, sheet name", async () => {
-  const bytes = xlsxBytes([["Titre"], [], ["EAN", "Réf.", "Prix & co <HT>"], [5400000000017, "FAR-055", 19.85], [null, "X", 1]], "Février");
+  const bytes = xlsxBytes([["Titre"], [], ["EAN", "Réf.", "Prix & co <HT>"], [5400000000010, "FAR-055", 19.85], [null, "X", 1]], "Février");
   const wb = await readXlsx(buf(bytes));
   assert.equal(wb.sheet, "Février");
-  assert.deepEqual(wb.rows, [["Titre"], [], ["EAN", "Réf.", "Prix & co <HT>"], [5400000000017, "FAR-055", 19.85], ["", "X", 1]]);
+  assert.deepEqual(wb.rows, [["Titre"], [], ["EAN", "Réf.", "Prix & co <HT>"], [5400000000010, "FAR-055", 19.85], ["", "X", 1]]);
 });
 
 test("loader rejects PDFs, old .xls, empty and broken files with a clear message", async () => {
@@ -202,7 +202,7 @@ test("end to end: three fictitious suppliers matched on EAN", async () => {
     lists.push({ label: f, list: buildList(t.data, listMapping(t, { ...t.mapping, keyRole: "ean" }), f) });
   }
   const r = compareSuppliers(lists);
-  const flour = r.rows.find((x) => x.key === "5400000000017");
+  const flour = r.rows.find((x) => x.key === "5400000000010");
   assert.equal(flour.count, 3);
   assert.equal(flour.best, "supplier-b.csv"); // 0.74/kg vs 0.756 and 0.776
   assert.equal(r.summary.onlyOne, 1);         // cane sugar only at B
@@ -229,9 +229,21 @@ test("formats: Excel FR export (Windows-1252, title lines, € and thousands) fi
   assert.equal(byKey.A200.newPrice, 1250);
 });
 
+test("formats: 'boîte de 100' -> 'boîte de 80' at the same price is a hidden increase per piece", async () => {
+  assert.deepEqual(parsePack("Vis 4x40 boîte de 100"), { amount: 100, unit: "pc" });
+  assert.deepEqual(parsePack("Chevilles sachet de 50"), { amount: 50, unit: "pc" });
+  assert.deepEqual(parsePack("Sac 25 kg"), { amount: 25, unit: "kg" });
+  const r = await diffCsv("Réf;Désignation;Prix\nV1;Vis 4x40 boîte de 100;8,00\n", "Réf;Désignation;Prix\nV1;Vis 4x40 boîte de 80;8,00\n");
+  assert.equal(r.changes[0].hidden, true);
+  assert.equal(r.changes[0].effectivePct, 25);
+});
 
-
-
+test("formats: EANs mangled by Excel (5,41E+12) are refused with the fix, never merged", async () => {
+  const r = await diffCsv("EAN;Description;Prix\n5,41E+12;A;10,00\n5,41E+12;B;12,00\n", "EAN;Description;Prix\n5,41E+12;A;11,00\n");
+  assert.equal(r.la.items.size, 0);
+  assert.equal(r.changes.length, 0);
+  assert.ok(r.la.issues.every((i) => i.type === "sci-key" && /Texte/.test(i.detail)));
+});
 
 test("formats: Dutch tab export and leading zeros vs. Excel numbers", async () => {
   const nl = await diffCsv("Artikelnr\tOmschrijving\tVerpakking\tPrijs excl. btw\n1001\tMelk\t6x1L\t5,40\n", "Artikelnr\tOmschrijving\tVerpakking\tPrijs excl. btw\n1001\tMelk\t6x1L\t5,70\n");
@@ -252,7 +264,7 @@ test("formats: known limits stay visible (gross price + discount column, TOTAL r
 
 test("formats: French 'Article' column holding product names is the name, and EAN becomes the key", () => {
   const m = guessMapping(["EAN", "Article", "Conditionnement", "Prix HT"],
-    [["5400000000017", "Bière blonde pils", "24 x 25 cl", 18.9], ["5400000000055", "Cola", "24 x 33 cl", 19.8], ["5400000000031", "Eau plate", "24 x 50 cl", 9.6]]);
+    [["5400000000010", "Bière blonde pils", "24 x 25 cl", 18.9], ["5400000000058", "Cola", "24 x 33 cl", 19.8], ["5400000000034", "Eau plate", "24 x 50 cl", 9.6]]);
   assert.equal(m.name, 1);
   assert.equal(m.sku, -1);
   assert.equal(m.ean, 0);
@@ -260,4 +272,81 @@ test("formats: French 'Article' column holding product names is the name, and EA
   const r = guessMapping(["Article", "Désignation", "Prix"], [["VIS-440", "Vis inox", "8,40"], ["CHV-08", "Chevilles", "4,90"]]);
   assert.equal(r.sku, 0);
   assert.equal(r.name, 1);
+});
+
+// ---- reliability phase (25/11): EAN keys, pack counts, French display ----
+const eanList = (rows) => buildList(rows, { key: 0, keyRole: "ean", name: 1, price: 2, pack: -1 }, "t");
+
+test("EAN 1/5: valid GTIN-8/13/14 accepted, wrong check digit refused", () => {
+  assert.ok(gtinValid("4006381333931") && gtinValid("96385074") && gtinValid("04006381333931"));
+  assert.ok(!gtinValid("4006381333932") && !gtinValid("12345") && !gtinValid("ABC") && !gtinValid(""));
+  const l = eanList([["4006381333931", "A", "1,00"], ["4006381333932", "B", "2,00"]]);
+  assert.equal(l.items.size, 1);
+  assert.equal(l.issues[0].type, "bad-ean");
+  assert.match(l.issues[0].detail, /clé de contrôle fausse.*Référence/);
+});
+
+test("EAN 2/5: leading zeros (text, GTIN-14, Excel number) are the same product", () => {
+  const a = eanList([["04006381333931", "A", "1,00"]]), b = eanList([[4006381333931, "A", "1,10"]]);
+  const d = diffLists(a, b);
+  assert.equal(d.changes.length, 1);
+  assert.equal(d.changes[0].status, "up");
+});
+
+test("EAN 3/5: scientific notation with every digit is restored exactly and matched", () => {
+  assert.equal(expandScientific("4,006381333931E+12"), "4006381333931");
+  assert.equal(expandScientific("4.006381333931E+12"), "4006381333931");
+  assert.equal(expandScientific("2E10"), undefined);          // a reference, not Excel's form
+  assert.equal(expandScientific("VIS-440"), undefined);
+  const d = diffLists(eanList([["4006381333931", "A", "1,00"]]), eanList([["4,006381333931E+12", "A", "1,20"]]));
+  assert.equal(d.changes[0].status, "up");
+  assert.equal(d.changes[0].key, "4006381333931");
+});
+
+test("EAN 4/5: truncated or rounded codes are never guessed nor matched", () => {
+  assert.equal(expandScientific("4,01E+12"), null);
+  // two different products whose codes Excel reduced to the same value: nothing is compared, both are reported
+  const a = eanList([["4,01E+12", "Produit A", "1,00"], [4010000000000, "Produit B", "2,00"]]);
+  const b = eanList([["4,01E+12", "Produit C", "9,00"], [4010000000000, "Produit D", "9,00"]]);
+  assert.equal(a.items.size + b.items.size, 0);
+  assert.deepEqual(a.issues.map((i) => i.type), ["sci-key", "bad-ean"]);
+  assert.equal(diffLists(a, b).changes.length, 0);
+});
+
+test("EAN 5/5: empty and non-EAN cells are reported, never matched to each other", () => {
+  const a = eanList([["", "vide", "1,00"], ["N/A", "X", "1,00"], ["12345", "Y", "1,00"], ["", "", ""]]);
+  const b = eanList([["N/A", "Z", "5,00"], ["12345", "W", "5,00"]]);
+  assert.equal(a.items.size + b.items.size, 0);
+  assert.deepEqual(a.issues.map((i) => i.type), ["missing-key", "bad-ean", "bad-ean"]);
+  assert.match(a.issues[1].detail, /n'est pas un EAN/);
+  assert.match(a.issues[2].detail, /longueur incorrecte/);
+  assert.equal(a.stats.skipped, 1);                          // fully empty row: silently skipped
+  // with a supplier reference as key, the same codes stay ordinary references (no EAN rule)
+  assert.equal(buildList([["12345", "Y", "1,00"]], { key: 0, keyRole: "sku", name: 1, price: 2, pack: -1 }).items.size, 1);
+});
+
+test("packs: boîte / lot / paquet counts, and a lower pack price that hides a higher unit price", () => {
+  assert.deepEqual(parsePack("Boîte de 100 vis"), { amount: 100, unit: "pc" });
+  assert.deepEqual(parsePack("Boîte de 80 vis"), { amount: 80, unit: "pc" });
+  assert.deepEqual(parsePack("Lot de 50"), { amount: 50, unit: "pc" });
+  assert.deepEqual(parsePack("Paquet de 100 gants"), { amount: 100, unit: "pc" });
+  const m = { key: 0, keyRole: "sku", name: 1, price: 2, pack: 3 };
+  const a = buildList([["V1", "Vis", "10,00", "Boîte de 100 vis"], ["G1", "Gants", "20,00", "Paquet de 100 gants"]], m);
+  const b = buildList([["V1", "Vis", "10,00", "Boîte de 80 vis"], ["G1", "Gants", "18,00", "Paquet de 80 gants"]], m);
+  const by = Object.fromEntries(diffLists(a, b).changes.map((c) => [c.key, c]));
+  assert.equal(by.V1.effectivePct, 25);                      // mandatory case: 100 -> 80 at the same price
+  assert.equal(by.V1.hidden, true);
+  assert.equal(by.G1.pct, -10);                              // the pack price falls...
+  assert.equal(by.G1.effectivePct, 12.5);                    // ...the price per glove rises
+  assert.equal(by.G1.hidden, true);
+  assert.equal(by.G1.status, "up");
+});
+
+test("display: French decimal comma in pack sizes, amounts unchanged", () => {
+  assert.equal(formatPack({ amount: 7.92, unit: "l" }), "7,92 l");
+  assert.equal(formatPack({ amount: 2.5, unit: "kg" }), "2,5 kg");
+  assert.equal(formatPack({ amount: 0.33, unit: "l" }), "33 cl");
+  assert.equal(formatPack({ amount: 0.5, unit: "kg" }), "500 g");
+  assert.equal(formatPack({ amount: 80, unit: "pc" }), "80 pc");
+  assert.equal(parsePack("24 x 33 cl").amount, 7.92);
 });

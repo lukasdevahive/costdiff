@@ -18,6 +18,28 @@ export function normKey(v, role) {
   return s;
 }
 
+/** GS1 check digit of a GTIN-8/12/13/14 given as digits (leading zeros may have been dropped: padded to 14). */
+export function gtinValid(digits) {
+  const s = String(digits ?? "");
+  if (!/^\d{8,14}$/.test(s)) return false;
+  const d = s.padStart(14, "0");
+  let sum = 0;
+  for (let i = 0; i < 13; i++) sum += Number(d[i]) * (i % 2 === 0 ? 3 : 1);
+  return (10 - (sum % 10)) % 10 === Number(d[13]);
+}
+
+/**
+ * Text in scientific notation ("5,412345678901E+12"): the exact integer when every digit is present, null when digits
+ * were lost ("5,41E+12") or the value is not an integer, undefined when the text is not in scientific notation.
+ */
+export function expandScientific(v) {
+  // Excel's form only ("5,41E+12": one digit, "E+", exponent 7 or more), so references such as "2E10" stay references
+  const m = String(v ?? "").trim().match(/^(\d)(?:[.,](\d+))?E\+(\d{1,2})$/i);
+  if (!m || Number(m[3]) < 7) return undefined;
+  const digits = m[1] + (m[2] || "");
+  return digits.length === 1 + Number(m[3]) ? digits : null;
+}
+
 /**
  * rows: data rows (header excluded). mapping: { key, keyRole, name, price, pack } column indexes (-1 = none).
  * Returns { items: Map(key -> item), issues: [...], stats }.
@@ -37,10 +59,29 @@ export function buildList(rows, mapping, label = "") {
   let skipped = 0;
   rows.forEach((r, i) => {
     const line = mapping.lines?.[i] ?? (mapping.firstDataLine ?? 2) + i; // line in the original file
-    const key = normKey(r[mapping.key], mapping.keyRole);
+    const rawKey = r[mapping.key];
+    const shown = String(rawKey ?? "").trim().slice(0, 40);
+    // "5,41E+12": Excel wrote a long code (EAN) in scientific notation. When every digit is still there
+    // ("5,412345678901E+12") the code is restored exactly; when digits were lost it is never guessed: the line is
+    // refused, because matching on it could pair two different products.
+    const sci = typeof rawKey === "number" ? undefined : expandScientific(rawKey);
+    if (sci === null) {
+      issues.push({ file: label, line, key: shown, type: "sci-key", detail: `code « ${shown} » abîmé par Excel (notation scientifique, derniers chiffres perdus) : dans le fichier d'origine, formatez la colonne en Texte puis exportez à nouveau` });
+      return;
+    }
+    const key = normKey(sci ?? rawKey, mapping.keyRole);
     const rawPrice = r[mapping.price];
     if (!key && (rawPrice === undefined || String(rawPrice).trim() === "")) { skipped++; return; }
     if (!key) { issues.push({ file: label, line, type: "missing-key", detail: "ligne sans référence" }); return; }
+    // matching on EAN: only real GTINs (8 to 14 digits, valid GS1 check digit). A wrong check digit usually means a
+    // code damaged by rounding or a typo: the line is refused rather than matched, with the manual fix to apply.
+    if (mapping.keyRole === "ean" && !gtinValid(key)) {
+      const detail = /^\d+$/.test(key)
+        ? `EAN « ${shown} » invalide (${key.length < 8 || key.length > 14 ? "longueur incorrecte" : "clé de contrôle fausse"}) : code peut-être abîmé, ligne non comparée. Corrigez-le dans le fichier, ou choisissez la colonne Référence pour rapprocher les produits`
+        : `« ${shown} » n'est pas un EAN : ligne non comparée. Corrigez-le dans le fichier, ou choisissez la colonne Référence pour rapprocher les produits`;
+      issues.push({ file: label, line, key, type: "bad-ean", detail });
+      return;
+    }
     const price = parsePrice(rawPrice, decimal);
     const name = mapping.name >= 0 ? String(r[mapping.name] ?? "").trim() : "";
     if (price === null || price < 0) {

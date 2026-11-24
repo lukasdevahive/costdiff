@@ -111,7 +111,7 @@ try {
   await page.locator("#mapping-compare .mapping").nth(2).waitFor();
   await page.getByRole("button", { name: "Comparer les fournisseurs" }).click();
   await page.locator("#result-compare table.result").waitFor();
-  const flour = (await page.locator("#result-compare tbody tr", { hasText: "5400000000017" }).locator("td.best").textContent()) || "";
+  const flour = (await page.locator("#result-compare tbody tr", { hasText: "5400000000010" }).locator("td.best").textContent()) || "";
   check("cheapest flour per kg is supplier B (7,40 € / 10 kg)", flour.includes("7,40"), flour);
   await page.screenshot({ path: path.join(SCREENS, "04-compare-sample.png"), fullPage: true });
   const visible = await page.locator("main").innerText();
